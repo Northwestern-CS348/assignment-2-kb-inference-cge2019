@@ -149,6 +149,25 @@ class KnowledgeBase(object):
             rule_fact = self._get_fact(fact_or_rule)
             if not rule_fact:
                 return
+       #Removing dependencies
+        if isinstance(rule_fact, Fact):
+            if len(rule_fact.supported_by) >= 1 and rule_fact.asserted == False:
+                return
+
+            if len(rule_fact.supported_by) >= 1 and rule_fact.asserted == True:
+                rule_fact.asserted = False
+                return
+            # asserted fact, but not supported, or fact not supported + assert
+            else:
+                self.facts.remove(rule_fact)
+
+        if isinstance(rule_fact, Rule): 
+            if rule_fact.asserted == True: 
+                return
+            elif len(rule_fact.supported_by) >= 1:
+                return 
+            else:
+                self.rules.remove(rule_fact)
        
 
 class InferenceEngine(object):
