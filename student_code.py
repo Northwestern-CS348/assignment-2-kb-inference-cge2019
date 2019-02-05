@@ -135,17 +135,19 @@ class KnowledgeBase(object):
         ####################################################
         # Student code goes here
 
-        #Return if Rule
+        #Return if rule DNE
         if isinstance(fact_or_rule, Rule):
             if fact_or_rule not in self.rules:
                 return
+            #if it's not a rule - nothing to retract    
             rule_fact = self._get_rule(fact_or_rule)
             if not rule_fact: 
                 return
-        #Condition on Facts
+        #Condition on Fact no-existance
         elif isinstance(fact_or_rule, Fact):
             if fact_or_rule not in self.facts:
                 return
+
             rule_fact = self._get_fact(fact_or_rule)
             if not rule_fact:
                 return
@@ -213,7 +215,7 @@ class InferenceEngine(object):
                 rule.supports_facts.append(added)
                 
                 kb.kb_assert(added)
-
+            
             else:
                 left = []
                 right = (instantiate(rule.rhs, binding))
