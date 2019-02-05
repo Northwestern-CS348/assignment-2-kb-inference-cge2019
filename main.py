@@ -14,7 +14,12 @@ class KBTest(unittest.TestCase):
         for item in data:
             if isinstance(item, Fact) or isinstance(item, Rule):
                 self.KB.kb_assert(item)
-        
+        file = 'statements_kb5.txt'
+        self.data = read.read_tokenize(file)
+        data = read.read_tokenize(file)
+        for item in data:
+            if isinstance(item, Fact) or isinstance(item, Rule):
+                self.KB.kb_assert(item)
     def test1(self):
         # Did the student code contain syntax errors, AttributeError, etc.
         ask1 = read.parse_input("fact: (motherof ada ?X)")

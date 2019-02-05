@@ -135,38 +135,52 @@ class KnowledgeBase(object):
         ####################################################
         # Student code goes here
 
-        #Simple accounting - making sure there is something to retract:
+        #Return if Rule
         if isinstance(fact_or_rule, Rule):
             if fact_or_rule not in self.rules:
                 return
             rule_fact = self._get_rule(fact_or_rule)
             if not rule_fact: 
                 return
-
+        #Condition on Facts
         elif isinstance(fact_or_rule, Fact):
             if fact_or_rule not in self.facts:
                 return
             rule_fact = self._get_fact(fact_or_rule)
             if not rule_fact:
                 return
-       #Removing dependencies
+       #Retract
         if isinstance(rule_fact, Fact):
-
             if len(rule_fact.supported_by) >= 1:
-                if rule_fact.asserted == True:
-                    rule_fact.asserted = False
+                if rule_fact.asserted == False:
                     return
                 else:
+                    rule_fact.asserted = False
                     return
             else:
                 self.facts.remove(rule_fact)
-            
+
         if isinstance(rule_fact, Rule): 
             if rule_fact.asserted == True or len(rule_fact.supported_by) >= 1:
-                return 
+                return
             else:
                 self.rules.remove(rule_fact)
-       
+        
+        #Remove supported facts and rules that depend on post-retracted facts
+        supported_rules = rule_fact.supports_rules
+        supported_facts = rule_fact.supports_facts
+
+        for item in supported_rules:
+            for rul in item.supported_by:
+                if fact_or_rule in rul:
+                    self._get_rule(item).supported_by.remove(rul)
+            self.kb_retract(item)
+
+        for item in supported_facts:
+            for fac in item.supported_by:
+                if fact_or_rule in fac:
+                    self._get_fact(item).supported_by.remove(fac)
+            self.kb_retract(item)
 
 class InferenceEngine(object):
     def fc_infer(self, fact, rule, kb):
@@ -184,11 +198,11 @@ class InferenceEngine(object):
             [fact.statement, rule.lhs, rule.rhs])
         ####################################################
         # Student code goes here
-
         binding = match(fact.statement, rule.lhs[0])
         support = [fact, rule]
 
         if (binding):
+            # no support
             if len(rule.lhs) == 1:
                 added = Fact(instantiate(rule.rhs, binding))
 
