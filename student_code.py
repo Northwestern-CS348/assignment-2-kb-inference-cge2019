@@ -134,7 +134,22 @@ class KnowledgeBase(object):
         printv("Retracting {!r}", 0, verbose, [fact_or_rule])
         ####################################################
         # Student code goes here
-        
+
+        #Simple accounting - making sure there is something to retract:
+        if isinstance(fact_or_rule, Rule):
+            if fact_or_rule not in self.rules:
+                return
+            rule_fact = self._get_rule(fact_or_rule)
+            if not rule_fact: 
+                return
+
+        elif isinstance(fact_or_rule, Fact):
+            if fact_or_rule not in self.facts:
+                return
+            rule_fact = self._get_fact(fact_or_rule)
+            if not rule_fact:
+                return
+       
 
 class InferenceEngine(object):
     def fc_infer(self, fact, rule, kb):
