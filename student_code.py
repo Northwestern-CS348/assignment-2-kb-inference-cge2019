@@ -121,9 +121,15 @@ class KnowledgeBase(object):
 
         Args:
             fact (Fact) - Fact to be retracted
-
+    
         Returns:
             None
+
+        Cases:
+        1 - passed rule - should do nothing
+        2 - given fact 
+        2a. - fact is asserted - retract it (if it is inferred then it will still exist)
+        2b. - fact is not asserted - fail to retract
         """
         printv("Retracting {!r}", 0, verbose, [fact_or_rule])
         ####################################################
@@ -146,3 +152,33 @@ class InferenceEngine(object):
             [fact.statement, rule.lhs, rule.rhs])
         ####################################################
         # Student code goes here
+
+        binding = match(fact.statement, rule.lhs[0])
+        support = [fact, rule]
+
+        if (binding):
+            if len(rule.lhs) == 1:
+                added = Fact(instantiate(rule.rhs, binding))
+
+                added.supported_by.append(support)
+                added.asserted = False
+
+                fact.supports_facts.append(added)
+                rule.supports_facts.append(added)
+                
+                kb.kb_assert(added)
+
+            else:
+                left = []
+                right = (instantiate(rule.rhs, binding))
+
+                for r in rule.lhs[1:]:
+                    left.append(instantiate(r, binding))
+
+                added = Rule([left, right], [support])
+                added.asserted = False
+
+                fact.supports_rules.append(added)
+                rule.supports_rules.append(added)
+                
+                kb.kb_assert(added)
